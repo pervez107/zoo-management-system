@@ -187,7 +187,7 @@ const TicketResult = () => {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
                   <p style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', color: '#9ca3af', margin: '0 0 4px 0' }}>Total Paid</p>
-                  <p style={{ fontWeight: '900', fontSize: '20px', color: '#16a34a', margin: '0' }}>${ticket.totalAmount}</p>
+                  <p style={{ fontWeight: '900', fontSize: '20px', color: '#16a34a', margin: '0' }}>₹{ticket.totalAmount}</p>
                 </div>
               </div>
 

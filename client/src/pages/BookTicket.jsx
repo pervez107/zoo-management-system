@@ -168,7 +168,7 @@ const BookTicket = () => {
               <div className="bg-gray-50 border-2 border-gray-100 p-4 rounded-xl transition-all focus-within:border-green-500 focus-within:bg-white">
                 <label className="flex justify-between items-center text-gray-700 font-bold mb-2 text-sm w-full">
                   <span className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-400" /> Adults</span>
-                  <span className="text-green-600 bg-green-100 px-2 py-0.5 rounded text-xs">$20</span>
+                  <span className="text-green-600 bg-green-100 px-2 py-0.5 rounded text-xs">₹20</span>
                 </label>
                 <input 
                   type="number" 
@@ -204,7 +204,7 @@ const BookTicket = () => {
               <div>
                 <p className="text-gray-400 font-bold text-sm uppercase tracking-wider mb-1">Total Amount</p>
                 <div className="text-4xl font-black text-gray-900 flex items-start">
-                  <span className="text-2xl mt-1 mr-1 text-green-500">$</span>{totalPrice}
+                  <span className="text-2xl mt-1 mr-1 text-green-500">₹</span>{totalPrice}
                 </div>
               </div>
 

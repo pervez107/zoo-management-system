@@ -122,7 +122,7 @@ const MyTickets = () => {
                   <div className="p-6 sm:w-1/3 bg-gray-50 flex flex-col justify-center items-center text-center">
                     <p className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-1">Total</p>
                     <div className="text-4xl font-black text-green-600 mb-6 flex items-start justify-center">
-                      <span className="text-2xl mt-1 mr-1">$</span>{ticket.totalAmount}
+                      <span className="text-2xl mt-1 mr-1">₹</span>{ticket.totalAmount}
                     </div>
 
                     {ticket.paymentStatus === 'Paid' ? (

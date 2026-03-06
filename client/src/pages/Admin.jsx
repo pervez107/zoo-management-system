@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Settings, PlusCircle, Trash2, Image as ImageIcon, CheckCircle, List, Ticket, DollarSign, Users, Activity, Leaf, Filter } from 'lucide-react';
+import { Settings, PlusCircle, Trash2, Image as ImageIcon, CheckCircle, List, Ticket, IndianRupee, Users, Activity, Leaf, Filter } from 'lucide-react';
 import toast from 'react-hot-toast'; 
 
 const Admin = () => {
@@ -198,10 +198,10 @@ const Admin = () => {
             </div>
           </div>
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
-            <div className="bg-yellow-100 p-4 rounded-2xl"><DollarSign className="w-8 h-8 text-yellow-600"/></div>
+            <div className="bg-yellow-100 p-4 rounded-2xl"><IndianRupee className="w-8 h-8 text-yellow-600"/></div>
             <div>
               <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">Total Revenue</p>
-              <h3 className="text-3xl font-black text-gray-800">${totalRevenue}</h3>
+              <h3 className="text-3xl font-black text-gray-800">₹{totalRevenue}</h3>
             </div>
           </div>
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
@@ -420,7 +420,7 @@ const Admin = () => {
                         {ticket.adultCount} Adults, {ticket.childCount} Kids
                       </td>
                       <td className="p-5 text-right font-black text-green-600 text-lg">
-                        ${ticket.totalAmount}
+                        ₹{ticket.totalAmount}
                       </td>
                       <td className="p-5 text-right">
                         <span className={`px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase inline-block shadow-sm ${
