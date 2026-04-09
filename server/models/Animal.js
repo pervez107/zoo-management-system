@@ -5,6 +5,7 @@ const animalSchema = new mongoose.Schema({
   species: { type: String, required: true },
   category: { type: String, required: true },
   image: { type: String, required: true },
+  count: { type: Number, default: 1, required: true },
   description: { type: String, required: true },
   born: { type: String }, // CHANGED from 'age' to 'born' to match Frontend
   gender: { type: String },

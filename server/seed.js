@@ -12,6 +12,7 @@ const animalsData = [
         name: "African Lion",
         category: "Mammals",
         species: "Panthera leo",
+        count: 4,
         description:
             "The king of the jungle. Highly social animals that live in prides.",
         image:
@@ -27,6 +28,7 @@ const animalsData = [
         name: "Asian Elephant",
         category: "Mammals",
         species: "Elephas maximus",
+        count: 12,
         description:
             "The largest land mammal in Asia, known for intelligence and memory.",
         image:
@@ -42,6 +44,7 @@ const animalsData = [
         name: "Giraffe",
         category: "Mammals",
         species: "Giraffa camelopardalis",
+        count: 8,
         description: "The tallest mammal on Earth with an incredibly long neck.",
         image:
             "https://images.unsplash.com/photo-1547721064-da6cfb341d50?q=80&w=800&auto=format&fit=crop",
@@ -56,6 +59,7 @@ const animalsData = [
         name: "Bengal Tiger",
         category: "Mammals",
         species: "Panthera tigris tigris",
+        count: 12,
         description:
             "A powerful apex predator famous for its orange coat and black stripes.",
         image:
@@ -71,6 +75,7 @@ const animalsData = [
         name: "Western Lowland Gorilla",
         category: "Mammals",
         species: "Gorilla gorilla gorilla",
+        count: 14,
         description:
             "A highly intelligent primate with strong family bonds and communication.",
         image:

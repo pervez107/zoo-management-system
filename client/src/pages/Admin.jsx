@@ -28,7 +28,7 @@ const Admin = () => {
     species: '', 
     description: '', 
     image: '', 
-    count: 1,
+    count: 1, // This is the count state
     category: '', 
     born: '', 
     origin: '',
@@ -123,9 +123,17 @@ const Admin = () => {
         toast.success("Record deleted successfully."); 
         fetchData(); 
       } catch (error) {
-        toast.error("Error deleting animal",error); 
+        toast.error("Error deleting animal", error); 
       }
     }
+  };
+
+  // Helper function to format dates beautifully
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Invalid Date';
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
   // ==========================================
@@ -291,6 +299,9 @@ const Admin = () => {
                             <p className="text-xs text-green-600 font-bold">
                               {animal.species}
                             </p>
+                            <p className="text-[10px] font-bold text-gray-500 mt-0.5 uppercase">
+                              Qty: {animal.count}
+                            </p>
                           </div>
                         </div>
                       </TableCell>
@@ -423,14 +434,27 @@ const Admin = () => {
                     ]}
                   />
                 </div>
-                <MuiInput
-                  label="Origin"
-                  name="origin"
-                  value={formData.origin}
-                  onChange={handleChange}
-                  placeholder="e.g. African Savanna"
-                  required
-                />
+                
+                {/* NEW: Origin and Count Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <MuiInput
+                    label="Origin"
+                    name="origin"
+                    value={formData.origin}
+                    onChange={handleChange}
+                    placeholder="e.g. Africa"
+                    required
+                  />
+                  <MuiInput
+                    label="Quantity (Count)"
+                    name="count"
+                    type="number"
+                    value={formData.count}
+                    onChange={handleChange}
+                    inputProps={{ min: 1 }}
+                    required
+                  />
+                </div>
               </div>
 
               {/* Behavior Section */}
@@ -652,8 +676,8 @@ const Admin = () => {
                       </p>
                     </TableCell>
                     <TableCell>
-                      <span className="bg-gray-100 px-3 py-1 rounded-md border border-gray-200 text-sm font-bold text-gray-700">
-                        {new Date(ticket.visitDate).toLocaleDateString()}
+                      <span className="bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-black text-slate-700 uppercase tracking-wider shadow-sm">
+                        {formatDate(ticket.visitDate)}
                       </span>
                     </TableCell>
                     <TableCell
@@ -710,7 +734,6 @@ const Admin = () => {
 
 // --- HELPER COMPONENTS ---
 
-// KPI Metric Card
 const MetricCard = ({ icon, label, value, color }) => {
     const colors = {
         green: "bg-green-100 text-green-600",
@@ -729,7 +752,6 @@ const MetricCard = ({ icon, label, value, color }) => {
     );
 };
 
-// Reusable Custom MUI TextField wrapper for the form
 const MuiInput = ({ ...props }) => (
   <TextField 
     variant="outlined" 
@@ -745,7 +767,6 @@ const MuiInput = ({ ...props }) => (
   />
 );
 
-// Reusable Custom MUI Select wrapper for the form
 const MuiSelect = ({ options, ...props }) => (
   <TextField 
     select
