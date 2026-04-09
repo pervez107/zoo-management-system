@@ -10,20 +10,30 @@ const getAnimals = async (req, res) => {
     }
 };
 
-// Add new animal
+// Add new animal (UPDATED to include all new fields)
 const addAnimal = async (req, res) => {
     try {
-        const { name, species, description, image, count, category, born, origin } = req.body;
+        // 1. Destructure ALL fields coming from the frontend (Admin.jsx)
+        const { 
+            name, species, description, image, count, 
+            category, born, origin, gender, funFacts, 
+            behavior, conservationStatus 
+        } = req.body;
+
+        // 2. Create the animal with ALL fields
         const newAnimal = await Animal.create({ 
-            name, species, description, image, count, category, born, origin 
+            name, species, description, image, count, 
+            category, born, origin, gender, funFacts, 
+            behavior, conservationStatus
         });
+        
         res.status(201).json(newAnimal);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
 
-// NEW: Delete an animal
+// Delete an animal
 const deleteAnimal = async (req, res) => {
     try {
         const animal = await Animal.findByIdAndDelete(req.params.id);
