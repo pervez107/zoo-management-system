@@ -1,24 +1,43 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Settings, PlusCircle, Trash2, Image as ImageIcon, CheckCircle, List, Ticket, IndianRupee, Users, Activity, Leaf, Filter } from 'lucide-react';
+import { 
+  Settings, PlusCircle, Trash2, Image as ImageIcon, CheckCircle, 
+  List, Ticket as TicketIcon, IndianRupee, Users, Activity, Leaf, Filter, 
+  Info, Sparkles, ShieldCheck
+} from 'lucide-react';
 import toast from 'react-hot-toast'; 
+
+// --- MUI IMPORTS ---
+import { 
+  TextField, MenuItem, Button, CircularProgress, 
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
+  IconButton, Tooltip, Box 
+} from '@mui/material';
 
 const Admin = () => {
   const [animals, setAnimals] = useState([]);
   const [tickets, setTickets] = useState([]);
   const [uploading, setUploading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true); // NEW: Initial load state
+  const [initialLoading, setInitialLoading] = useState(true); 
   
-  // Filter State for the table
   const [filterCategory, setFilterCategory] = useState('All');
   
-  // Form State
+  // Form State including all new fields
   const [formData, setFormData] = useState({
-    name: '', species: '', description: '', image: '', count: 1,
-    category: 'Mammals', born: '', origin: ''
+    name: '', 
+    species: '', 
+    description: '', 
+    image: '', 
+    count: 1,
+    category: '', 
+    born: '', 
+    origin: '',
+    gender: '',               
+    funFacts: '',             
+    behavior: '',             
+    conservationStatus: ''  
   });
 
-  // Fetch all animals & tickets on load
   const fetchData = async () => {
     try {
       const [animalRes, ticketRes] = await Promise.all([
@@ -31,7 +50,7 @@ const Admin = () => {
       console.error("Error fetching admin data", error);
       toast.error("Failed to load database records."); 
     } finally {
-      setInitialLoading(false); // Stop loader regardless of success or failure
+      setInitialLoading(false); 
     }
   };
 
@@ -39,7 +58,6 @@ const Admin = () => {
     fetchData();
   }, []);
 
-  // Calculate Dashboard Metrics
   const totalRevenue = tickets
     .filter(t => t.paymentStatus === 'Paid')
     .reduce((sum, t) => sum + t.totalAmount, 0);
@@ -48,7 +66,6 @@ const Admin = () => {
     .filter(t => t.paymentStatus === 'Paid')
     .reduce((sum, t) => sum + t.adultCount + t.childCount, 0);
 
-  // Filter Animals Logic
   const filteredAnimals = animals.filter(animal => {
     if (filterCategory === 'All') return true;
     return animal.category === filterCategory;
@@ -58,9 +75,10 @@ const Admin = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Image Upload Handler
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+
     const imageFormData = new FormData();
     imageFormData.append('image', file);
     
@@ -80,7 +98,6 @@ const Admin = () => {
     }
   };
 
-  // Submit New Animal
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.image) return toast.error("Please upload an image first!"); 
@@ -88,14 +105,17 @@ const Admin = () => {
     try {
       await axios.post('http://localhost:5000/api/animals', formData);
       toast.success(`${formData.name} added to the sanctuary! 🦁`); 
-      setFormData({ name: '', species: '', description: '', image: '', count: 1, category: 'Mammals', born: '', origin: '' }); 
+      setFormData({ 
+        name: '', species: '', description: '', image: '', count: 1, 
+        category: '', born: '', origin: '', 
+        gender: '', funFacts: '', behavior: '', conservationStatus: '' 
+      }); 
       fetchData(); 
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error adding animal'); 
     }
   };
 
-  // Delete Animal
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to permanently remove this animal record?")) {
       try {
@@ -103,57 +123,21 @@ const Admin = () => {
         toast.success("Record deleted successfully."); 
         fetchData(); 
       } catch (error) {
-        toast.error("Error deleting animal"); 
+        toast.error("Error deleting animal",error); 
       }
     }
   };
 
   // ==========================================
-  // SKELETON LOADER UI (Shows while fetching data)
+  // SKELETON LOADER UI (MUI CircularProgress)
   // ==========================================
   if (initialLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 md:p-10 pb-20">
-        <div className="max-w-7xl mx-auto space-y-8">
-          {/* Header Skeleton */}
-          <div className="bg-slate-200 h-32 md:h-40 rounded-3xl w-full animate-pulse"></div>
-
-          {/* KPI Cards Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 animate-pulse">
-                <div className="bg-slate-200 w-16 h-16 rounded-2xl"></div>
-                <div className="space-y-3 flex-1">
-                  <div className="h-3 bg-slate-200 rounded w-1/2"></div>
-                  <div className="h-6 bg-slate-200 rounded w-3/4"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Main Layout Skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Table Skeleton */}
-            <div className="order-2 lg:order-1 lg:col-span-2 bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden h-[850px] p-8 animate-pulse">
-               <div className="h-8 bg-slate-200 rounded w-1/3 mb-10"></div>
-               <div className="space-y-6 mt-12">
-                 {[1,2,3,4,5,6].map(i => <div key={i} className="h-16 bg-slate-100 rounded-2xl w-full"></div>)}
-               </div>
-            </div>
-            
-            {/* Form Skeleton */}
-            <div className="order-1 lg:order-2 lg:col-span-1 bg-white rounded-3xl shadow-xl border border-gray-100 h-[850px] p-8 animate-pulse">
-               <div className="h-8 bg-slate-200 rounded w-1/2 mb-10"></div>
-               <div className="space-y-6 mt-12">
-                 <div className="h-12 bg-slate-100 rounded-xl w-full"></div>
-                 <div className="h-12 bg-slate-100 rounded-xl w-full"></div>
-                 <div className="h-12 bg-slate-100 rounded-xl w-full"></div>
-                 <div className="h-24 bg-slate-100 rounded-xl w-full"></div>
-                 <div className="h-32 bg-slate-200 border-2 border-dashed border-slate-300 rounded-xl w-full mt-8"></div>
-               </div>
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+         <div className="flex flex-col items-center gap-4">
+            <CircularProgress color="success" size={60} thickness={4} />
+            <p className="text-slate-500 font-bold animate-pulse mt-2">Syncing Sanctuary Data...</p>
+         </div>
       </div>
     );
   }
@@ -164,282 +148,622 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-10 pb-20">
       <div className="max-w-7xl mx-auto space-y-8">
-        
         {/* HEADER */}
-        <div className="bg-gray-900 text-white p-8 rounded-3xl shadow-2xl flex items-center justify-between bg-cover bg-[center_top_30%] relative overflow-hidden" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=2072&auto=format&fit=crop')" }}>
-          <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-sm"></div>
+        <div className="bg-gray-900 text-white p-8 rounded-[2rem] shadow-2xl flex items-center justify-between relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/50 to-transparent"></div>
           <div className="relative z-10 flex items-center gap-5">
-            <div className="bg-yellow-500 p-4 rounded-2xl shadow-[0_0_20px_rgba(234,179,8,0.4)] border border-yellow-400">
+            <div className="bg-yellow-500 p-4 rounded-2xl shadow-lg border border-yellow-400">
               <Settings className="w-8 h-8 text-gray-900" />
             </div>
             <div>
-              <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-1">Command Center</h1>
+              <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-1">
+                Command Center
+              </h1>
               <p className="text-green-300 font-medium text-lg flex items-center gap-2">
-                <Leaf className="w-4 h-4" /> Global Zoo Management System
+                <Leaf className="w-4 h-4" /> Management System Online
               </p>
             </div>
           </div>
         </div>
 
-        {/* KPI METRIC CARDS */}
+        {/* METRICS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
-            <div className="bg-green-100 p-4 rounded-2xl"><Activity className="w-8 h-8 text-green-600"/></div>
-            <div>
-              <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">Total Animals</p>
-              <h3 className="text-3xl font-black text-gray-800">{animals.length}</h3>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
-            <div className="bg-blue-100 p-4 rounded-2xl"><Ticket className="w-8 h-8 text-blue-600"/></div>
-            <div>
-              <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">Total Bookings</p>
-              <h3 className="text-3xl font-black text-gray-800">{tickets.length}</h3>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
-            <div className="bg-yellow-100 p-4 rounded-2xl"><IndianRupee className="w-8 h-8 text-yellow-600"/></div>
-            <div>
-              <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">Total Revenue</p>
-              <h3 className="text-3xl font-black text-gray-800">₹{totalRevenue}</h3>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
-            <div className="bg-purple-100 p-4 rounded-2xl"><Users className="w-8 h-8 text-purple-600"/></div>
-            <div>
-              <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">Total Visitors</p>
-              <h3 className="text-3xl font-black text-gray-800">{totalVisitors}</h3>
-            </div>
-          </div>
+          <MetricCard
+            icon={<Activity />}
+            label="Residents"
+            value={animals.length}
+            color="green"
+          />
+          <MetricCard
+            icon={<TicketIcon />}
+            label="Bookings"
+            value={tickets.length}
+            color="blue"
+          />
+          <MetricCard
+            icon={<IndianRupee />}
+            label="Revenue"
+            value={`₹${totalRevenue}`}
+            color="yellow"
+          />
+          <MetricCard
+            icon={<Users />}
+            label="Visitors"
+            value={totalVisitors}
+            color="purple"
+          />
         </div>
 
-        {/* MAIN LAYOUT: TABLE ON LEFT, FORM ON RIGHT */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          
-          {/* LEFT: ANIMALS DATABASE TABLE */}
-          <div className="order-2 lg:order-1 lg:col-span-2 bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden flex flex-col h-[850px]">
-            
-            <div className="p-6 md:p-8 border-b border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gradient-to-br from-gray-900 to-gray-800 text-white gap-4">
-              <div>
-                <h2 className="text-2xl font-bold flex items-center gap-3">
-                  <List className="text-blue-400 w-7 h-7" /> Residents Database
-                </h2>
-                <p className="text-sm text-gray-400 font-medium mt-1">Manage all active zoo inhabitants below.</p>
-              </div>
-              
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <div className="relative w-full sm:w-auto">
-                  <Filter className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                  <select 
-                    value={filterCategory} 
-                    onChange={(e) => setFilterCategory(e.target.value)} 
-                    className="w-full bg-gray-800 border border-gray-700 text-white text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block pl-9 pr-8 py-2.5 outline-none appearance-none cursor-pointer"
-                  >
-                    <option value="All">All Categories</option>
-                    <option value="Mammals">Mammals</option>
-                    <option value="Birds">Birds</option>
-                    <option value="Reptiles">Reptiles</option>
-                    <option value="Aquatic">Aquatic</option>
-                  </select>
-                </div>
-                <span className="hidden sm:inline-block bg-blue-500/20 text-blue-300 border border-blue-500/30 px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm whitespace-nowrap">
-                  {filteredAnimals.length} Records
-                </span>
-              </div>
+          {/* LEFT: ANIMALS DATABASE TABLE (MUI TABLE) */}
+          <div className="order-2 lg:order-1 lg:col-span-2 bg-white rounded-[2.5rem] shadow-lg border border-gray-100 overflow-hidden flex flex-col h-[900px]">
+            <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-slate-900 text-white">
+              <h2 className="text-2xl font-bold flex items-center gap-3">
+                <List className="text-blue-400" /> Database
+              </h2>
+              <TextField
+                select
+                size="small"
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                sx={{
+                  bgcolor: "#1e293b",
+                  borderRadius: 2,
+                  input: { color: "white" },
+                  "& .MuiSelect-select": {
+                    color: "white",
+                    fontWeight: "bold",
+                    fontSize: "0.8rem",
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                  "& .MuiSvgIcon-root": { color: "white" },
+                }}
+              >
+                <MenuItem value="All">All Species</MenuItem>
+                <MenuItem value="Mammals">Mammals</MenuItem>
+                <MenuItem value="Birds">Birds</MenuItem>
+                <MenuItem value="Reptiles">Reptiles</MenuItem>
+                <MenuItem value="Aquatic">Aquatic</MenuItem>
+              </TextField>
             </div>
-            
-            <div className="overflow-y-auto flex-1">
-              <table className="w-full text-left border-collapse">
-                <thead className="sticky top-0 bg-gray-50 z-10">
-                  <tr className="text-gray-400 text-xs uppercase tracking-wider border-b border-gray-200">
-                    <th className="p-5 font-bold">Resident Details</th>
-                    <th className="p-5 font-bold">Category</th>
-                    <th className="p-5 font-bold">Origin</th>
-                    <th className="p-5 font-bold text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {filteredAnimals.length === 0 ? (
-                    <tr><td colSpan="4" className="p-12 text-center text-gray-500 font-medium text-lg">No animals found in this category.</td></tr>
-                  ) : (
-                    filteredAnimals.map((animal) => (
-                      <tr key={animal._id} className="hover:bg-green-50/50 transition-colors group">
-                        <td className="p-5 flex items-center gap-5">
-                          {/* OPTIMIZED: Lazy Loading & Async Decoding Added */}
-                          <img 
-                            src={animal.image} 
-                            alt={animal.name} 
-                            loading="lazy" 
-                            decoding="async" 
-                            className="w-14 h-14 rounded-2xl object-cover shadow-sm group-hover:shadow-md transition-shadow bg-gray-200" 
+
+            <TableContainer sx={{ flex: 1, overflowY: "auto" }}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        fontWeight: 900,
+                        color: "#9ca3af",
+                        textTransform: "uppercase",
+                        fontSize: "10px",
+                        letterSpacing: "0.1em",
+                        bgcolor: "#f8fafc",
+                      }}
+                    >
+                      Resident
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 900,
+                        color: "#9ca3af",
+                        textTransform: "uppercase",
+                        fontSize: "10px",
+                        letterSpacing: "0.1em",
+                        bgcolor: "#f8fafc",
+                      }}
+                    >
+                      Status & Bio
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        fontWeight: 900,
+                        color: "#9ca3af",
+                        textTransform: "uppercase",
+                        fontSize: "10px",
+                        letterSpacing: "0.1em",
+                        bgcolor: "#f8fafc",
+                      }}
+                    >
+                      Action
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredAnimals.map((animal) => (
+                    <TableRow
+                      key={animal._id}
+                      hover
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell>
+                        <div className="flex items-center gap-4">
+                          <img
+                            src={animal.image}
+                            className="w-14 h-14 rounded-2xl object-cover shadow-sm"
+                            alt=""
                           />
                           <div>
-                            <p className="font-bold text-gray-900 text-lg">{animal.name}</p>
-                            <p className="text-xs text-green-600 font-bold tracking-wide">{animal.species}</p>
+                            <p className="font-bold text-gray-900">
+                              {animal.name}
+                            </p>
+                            <p className="text-xs text-green-600 font-bold">
+                              {animal.species}
+                            </p>
                           </div>
-                        </td>
-                        <td className="p-5">
-                          <span className="bg-gray-100 text-gray-700 border border-gray-200 px-4 py-1.5 rounded-full text-xs font-bold shadow-sm">
-                            {animal.category || 'Mammals'}
-                          </span>
-                        </td>
-                        <td className="p-5 text-sm text-gray-600 font-medium truncate max-w-[150px]">
-                          {animal.origin || 'Unknown'}
-                        </td>
-                        <td className="p-5 text-right">
-                          <button onClick={() => handleDelete(animal._id)} className="bg-white border border-red-100 text-red-500 p-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm hover:shadow-md">
-                            <Trash2 className="w-5 h-5" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-[10px] font-black uppercase bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md mb-1 inline-block">
+                          {animal.conservationStatus || "Stable"}
+                        </span>
+                        <p className="text-sm text-gray-500 line-clamp-1 italic">
+                          "{animal.description}"
+                        </p>
+                      </TableCell>
+                      <TableCell align="right">
+                        <Tooltip title="Delete Record" placement="top">
+                          <IconButton
+                            onClick={() => handleDelete(animal._id)}
+                            color="error"
+                            sx={{
+                              bgcolor: "#fef2f2",
+                              "&:hover": { bgcolor: "#fee2e2" },
+                            }}
+                          >
+                            <Trash2 size={20} />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filteredAnimals.length === 0 && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={3}
+                        align="center"
+                        sx={{ py: 10, color: "text.secondary" }}
+                      >
+                        No animals found.
+                      </TableCell>
+                    </TableRow>
                   )}
-                </tbody>
-              </table>
-            </div>
+                </TableBody>
+              </Table>
+            </TableContainer>
           </div>
 
-          {/* RIGHT: ADD ANIMAL FORM */}
-          <div className="order-1 lg:order-2 lg:col-span-1 sticky top-24">
-            <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden h-[850px] flex flex-col">
-              
-              <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 md:p-8 text-white border-b border-gray-800">
-                <h2 className="text-2xl font-bold flex items-center gap-3">
-                  <PlusCircle className="text-green-400 w-7 h-7" /> Register Resident
-                </h2>
-                <p className="text-gray-400 text-sm mt-1">Add a new animal to the sanctuary system.</p>
-              </div>
-
-              <div className="p-6 overflow-y-auto flex-1">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Name</label>
-                      <input type="text" name="name" required value={formData.name} onChange={handleChange} className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:border-green-500 focus:bg-white outline-none transition-all font-medium text-sm" placeholder="e.g. Leo" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Category</label>
-                      <select name="category" value={formData.category} onChange={handleChange} className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:border-green-500 focus:bg-white outline-none transition-all font-medium text-sm text-gray-700">
-                        <option value="Mammals">Mammals</option>
-                        <option value="Birds">Birds</option>
-                        <option value="Reptiles">Reptiles</option>
-                        <option value="Aquatic">Aquatic</option>
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Full Species</label>
-                    <input type="text" name="species" required value={formData.species} onChange={handleChange} className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:border-green-500 focus:bg-white outline-none transition-all font-medium text-sm" placeholder="e.g. African Lion" />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Date of Birth</label>
-                      <input type="date" name="born" required value={formData.born} onChange={handleChange} className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:border-green-500 focus:bg-white outline-none transition-all text-xs font-medium text-gray-600" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Quantity</label>
-                      <input type="number" name="count" min="1" required value={formData.count} onChange={handleChange} className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:border-green-500 focus:bg-white outline-none transition-all font-medium text-sm text-center" />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Origin Details</label>
-                    <input type="text" name="origin" required value={formData.origin} onChange={handleChange} className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:border-green-500 focus:bg-white outline-none transition-all font-medium text-sm" placeholder="e.g. Rescued from Kenya" />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Description</label>
-                    <textarea name="description" required value={formData.description} onChange={handleChange} rows="2" className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:border-green-500 focus:bg-white outline-none transition-all resize-none font-medium text-sm text-gray-700"></textarea>
-                  </div>
-                  
-                  <div className="border-2 border-dashed border-green-200 rounded-xl p-5 text-center bg-green-50 hover:bg-green-100/50 transition-colors group">
-                    <label className="cursor-pointer flex flex-col items-center">
-                      <div className="bg-white p-2 rounded-full shadow-sm mb-2 group-hover:scale-110 transition-transform">
-                        <ImageIcon className="w-6 h-6 text-green-500" />
-                      </div>
-                      <span className="text-sm font-bold text-green-700">Select Image File</span>
-                      <input type="file" className="hidden" onChange={uploadFileHandler} />
-                    </label>
-                    {uploading && <p className="text-xs text-blue-600 mt-2 font-black animate-bounce">Uploading...</p>}
-                    {formData.image && <p className="text-xs text-green-700 mt-2 font-black flex items-center justify-center gap-1 bg-white inline-flex px-3 py-1 rounded-full shadow-sm"><CheckCircle className="w-3 h-3"/> Image Ready</p>}
-                  </div>
-
-                  <button type="submit" disabled={uploading} className="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-500 transition-all shadow-[0_4px_14px_0_rgba(22,163,74,0.39)] hover:shadow-[0_6px_20px_rgba(22,163,74,0.23)] hover:-translate-y-0.5 disabled:bg-gray-400 mt-4">
-                    Create Record
-                  </button>
-                </form>
-              </div>
+          {/* RIGHT: ADD ANIMAL FORM (MUI) */}
+          <div className="order-1 lg:order-2 lg:col-span-1 bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden h-[900px] flex flex-col">
+            <div className="p-8 bg-green-600 text-white">
+              <h2 className="text-2xl font-bold flex items-center gap-3">
+                <PlusCircle /> New Registry
+              </h2>
+              <p className="text-green-100 text-xs font-bold uppercase mt-1 tracking-widest">
+                Sanctuary Expansion
+              </p>
             </div>
+
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              sx={{ p: 4, overflowY: "auto", flex: 1 }}
+              className="custom-scrollbar"
+            >
+              {/* Basic Section */}
+              <div className="mb-6">
+                <div className="flex items-center gap-2 text-slate-400 font-black text-[10px] uppercase tracking-widest mb-3">
+                  <Info size={14} /> Basic Identity
+                </div>
+                <MuiInput
+                  label="Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="e.g. Simba"
+                  required
+                />
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <MuiSelect
+                    label="Category"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    options={["Mammals", "Birds", "Reptiles", "Aquatic"]}
+                  />
+                  <MuiSelect
+                    label="Gender"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    options={["Male", "Female"]}
+                    placeholder="Select Gender"
+                    required
+                  />
+                </div>
+                <MuiInput
+                  label="Species"
+                  name="species"
+                  value={formData.species}
+                  onChange={handleChange}
+                  placeholder="e.g. Panthera leo"
+                  required
+                />
+              </div>
+
+              {/* Stats Section */}
+              <div className="mb-6">
+                <div className="flex items-center gap-2 text-slate-400 font-black text-[10px] uppercase tracking-widest mb-3">
+                  <ShieldCheck size={14} /> Vital Records
+                </div>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <MuiInput
+                    label="Birth Date"
+                    name="born"
+                    type={formData.born ? "date" : "text"}
+                    value={formData.born}
+                    onChange={handleChange}
+                    onFocus={(e) => (e.target.type = "date")}
+                    onBlur={(e) => {
+                      if (!formData.born) e.target.type = "text";
+                    }}
+                    required
+                  />
+                  <MuiSelect
+                    label="Status"
+                    name="conservationStatus"
+                    value={formData.conservationStatus}
+                    onChange={handleChange}
+                    options={[
+                      "Stable",
+                      "Vulnerable",
+                      "Endangered",
+                      "Critically Endangered",
+                    ]}
+                  />
+                </div>
+                <MuiInput
+                  label="Origin"
+                  name="origin"
+                  value={formData.origin}
+                  onChange={handleChange}
+                  placeholder="e.g. African Savanna"
+                  required
+                />
+              </div>
+
+              {/* Behavior Section */}
+              <div className="mb-6">
+                <div className="flex items-center gap-2 text-slate-400 font-black text-[10px] uppercase tracking-widest mb-3">
+                  <Sparkles size={14} /> Biology & Habits
+                </div>
+                <MuiInput
+                  label="Short Bio"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  multiline
+                  rows={2}
+                  required
+                />
+                <MuiInput
+                  label="Fun Facts"
+                  name="funFacts"
+                  value={formData.funFacts}
+                  onChange={handleChange}
+                  multiline
+                  rows={2}
+                  placeholder="e.g. Roar can be heard 5 miles away"
+                  required
+                />
+                <MuiInput
+                  label="Behavioral Notes"
+                  name="behavior"
+                  value={formData.behavior}
+                  onChange={handleChange}
+                  multiline
+                  rows={2}
+                  placeholder="e.g. Nocturnal hunter"
+                  required
+                />
+              </div>
+
+              {/* Image Upload (MUI Button) */}
+              <Button
+                variant="outlined"
+                component="label"
+                fullWidth
+                color={formData.image ? "success" : "inherit"}
+                sx={{
+                  py: 3,
+                  borderWidth: 2,
+                  borderStyle: "dashed",
+                  borderRadius: 4,
+                  bgcolor: "#f8fafc",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1,
+                  "&:hover": {
+                    borderWidth: 2,
+                    borderStyle: "dashed",
+                    borderColor: "#4ade80",
+                  },
+                }}
+              >
+                <div className="bg-white w-10 h-10 rounded-xl shadow-sm flex items-center justify-center">
+                  <ImageIcon
+                    className={
+                      formData.image ? "text-green-600" : "text-gray-400"
+                    }
+                    size={20}
+                  />
+                </div>
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                  {formData.image ? "Image Ready" : "Upload Portrait"}
+                </span>
+                <input type="file" hidden onChange={uploadFileHandler} />
+              </Button>
+              {uploading && (
+                <div className="mt-2 text-center text-xs font-bold text-blue-500 animate-pulse">
+                  Uploading...
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={uploading}
+                fullWidth
+                sx={{
+                  mt: 4,
+                  py: 2,
+                  borderRadius: 8,
+                  bgcolor: "#0f172a",
+                  color: "white",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  "&:hover": { bgcolor: "#16a34a" },
+                }}
+              >
+                Register Resident
+              </Button>
+            </Box>
           </div>
         </div>
 
-        {/* TICKET / BOOKING MANAGEMENT SECTION */}
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden mt-8">
+        {/* TICKET / BOOKING MANAGEMENT SECTION (MUI TABLE) */}
+        <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden mt-8">
           <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-900 text-white">
             <div>
               <h2 className="text-2xl font-bold flex items-center gap-3">
-                <Ticket className="text-yellow-400 w-7 h-7" /> Financial & Booking Log
+                <TicketIcon className="text-yellow-400 w-7 h-7" /> Financial &
+                Booking Log
               </h2>
-              <p className="text-gray-400 text-sm mt-1">Track all global ticket sales and visitor reservations.</p>
+              <p className="text-gray-400 text-sm mt-1">
+                Track all global ticket sales and visitor reservations.
+              </p>
             </div>
           </div>
-          
-          <div className="overflow-x-auto p-4 max-h-[500px] overflow-y-auto">
-            <table className="w-full text-left border-collapse">
-              <thead className="sticky top-0 bg-gray-50 z-10">
-                <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
-                  <th className="p-5 font-bold">Ticket ID</th>
-                  <th className="p-5 font-bold">Visitor Details</th>
-                  <th className="p-5 font-bold">Visit Date</th>
-                  <th className="p-5 font-bold">Party Size</th>
-                  <th className="p-5 font-bold text-right">Revenue</th>
-                  <th className="p-5 font-bold text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {tickets.length === 0 ? (
-                  <tr><td colSpan="6" className="p-12 text-center text-gray-500 font-medium text-lg">No bookings yet.</td></tr>
-                ) : (
-                  tickets.map((ticket) => (
-                    <tr key={ticket._id} className="hover:bg-blue-50/30 transition-colors">
-                      <td className="p-5 font-mono text-sm font-bold text-gray-600 tracking-wide">
-                        {ticket.ticketId || ticket._id.substring(0,8)}
-                      </td>
-                      <td className="p-5">
-                        <p className="font-bold text-gray-900 text-base">{ticket.visitorName}</p>
-                        <p className="text-xs text-gray-500 font-medium">{ticket.email}</p>
-                      </td>
-                      <td className="p-5 text-sm font-bold text-gray-700">
-                        <span className="bg-gray-100 px-3 py-1 rounded-md border border-gray-200">
-                          {new Date(ticket.visitDate).toLocaleDateString()}
-                        </span>
-                      </td>
-                      <td className="p-5 text-sm font-medium text-gray-600">
-                        {ticket.adultCount} Adults, {ticket.childCount} Kids
-                      </td>
-                      <td className="p-5 text-right font-black text-green-600 text-lg">
-                        ₹{ticket.totalAmount}
-                      </td>
-                      <td className="p-5 text-right">
-                        <span className={`px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase inline-block shadow-sm ${
-                          ticket.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-yellow-100 text-yellow-700 border border-yellow-200'
-                        }`}>
-                          {ticket.paymentStatus}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
 
+          <TableContainer sx={{ maxHeight: 500, overflowY: "auto" }}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    sx={{
+                      fontWeight: 900,
+                      color: "#9ca3af",
+                      textTransform: "uppercase",
+                      fontSize: "10px",
+                      letterSpacing: "0.1em",
+                      bgcolor: "#f8fafc",
+                    }}
+                  >
+                    Ticket ID
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 900,
+                      color: "#9ca3af",
+                      textTransform: "uppercase",
+                      fontSize: "10px",
+                      letterSpacing: "0.1em",
+                      bgcolor: "#f8fafc",
+                    }}
+                  >
+                    Visitor Details
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 900,
+                      color: "#9ca3af",
+                      textTransform: "uppercase",
+                      fontSize: "10px",
+                      letterSpacing: "0.1em",
+                      bgcolor: "#f8fafc",
+                    }}
+                  >
+                    Visit Date
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 900,
+                      color: "#9ca3af",
+                      textTransform: "uppercase",
+                      fontSize: "10px",
+                      letterSpacing: "0.1em",
+                      bgcolor: "#f8fafc",
+                    }}
+                  >
+                    Party Size
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{
+                      fontWeight: 900,
+                      color: "#9ca3af",
+                      textTransform: "uppercase",
+                      fontSize: "10px",
+                      letterSpacing: "0.1em",
+                      bgcolor: "#f8fafc",
+                    }}
+                  >
+                    Revenue
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{
+                      fontWeight: 900,
+                      color: "#9ca3af",
+                      textTransform: "uppercase",
+                      fontSize: "10px",
+                      letterSpacing: "0.1em",
+                      bgcolor: "#f8fafc",
+                    }}
+                  >
+                    Status
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {tickets.map((ticket) => (
+                  <TableRow
+                    key={ticket._id}
+                    hover
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell
+                      sx={{
+                        fontFamily: "monospace",
+                        fontWeight: "bold",
+                        color: "#4b5563",
+                      }}
+                    >
+                      {ticket.ticketId || ticket._id.substring(0, 8)}
+                    </TableCell>
+                    <TableCell>
+                      <p className="font-bold text-gray-900">
+                        {ticket.visitorName}
+                      </p>
+                      <p className="text-xs text-gray-500 font-medium">
+                        {ticket.email}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <span className="bg-gray-100 px-3 py-1 rounded-md border border-gray-200 text-sm font-bold text-gray-700">
+                        {new Date(ticket.visitDate).toLocaleDateString()}
+                      </span>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: "0.875rem",
+                        fontWeight: 500,
+                        color: "#4b5563",
+                      }}
+                    >
+                      {ticket.adultCount} Adults, {ticket.childCount} Kids
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        fontWeight: 900,
+                        color: "#16a34a",
+                        fontSize: "1.125rem",
+                      }}
+                    >
+                      ₹{ticket.totalAmount}
+                    </TableCell>
+                    <TableCell align="right">
+                      <span
+                        className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-wider uppercase inline-block shadow-sm ${
+                          ticket.paymentStatus === "Paid"
+                            ? "bg-green-100 text-green-700 border border-green-200"
+                            : "bg-yellow-100 text-yellow-700 border border-yellow-200"
+                        }`}
+                      >
+                        {ticket.paymentStatus}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {tickets.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      align="center"
+                      sx={{ py: 10, color: "text.secondary" }}
+                    >
+                      No bookings yet.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
       </div>
     </div>
   );
 };
+
+// --- HELPER COMPONENTS ---
+
+// KPI Metric Card
+const MetricCard = ({ icon, label, value, color }) => {
+    const colors = {
+        green: "bg-green-100 text-green-600",
+        blue: "bg-blue-100 text-blue-600",
+        yellow: "bg-yellow-100 text-yellow-600",
+        purple: "bg-purple-100 text-purple-600"
+    };
+    return (
+        <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex items-center gap-4 group hover:shadow-md transition-all">
+            <div className={`${colors[color]} p-4 rounded-2xl group-hover:scale-110 transition-transform`}>{icon}</div>
+            <div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{label}</p>
+                <h3 className="text-2xl font-black text-gray-800 tracking-tighter">{value}</h3>
+            </div>
+        </div>
+    );
+};
+
+// Reusable Custom MUI TextField wrapper for the form
+const MuiInput = ({ ...props }) => (
+  <TextField 
+    variant="outlined" 
+    fullWidth 
+    size="small"
+    color="success"
+    sx={{ 
+      mb: 2, 
+      bgcolor: '#f8fafc',
+      '& .MuiOutlinedInput-root': { borderRadius: 3 } 
+    }} 
+    {...props} 
+  />
+);
+
+// Reusable Custom MUI Select wrapper for the form
+const MuiSelect = ({ options, ...props }) => (
+  <TextField 
+    select
+    variant="outlined" 
+    fullWidth 
+    size="small"
+    color="success"
+    sx={{ 
+      mb: 2, 
+      bgcolor: '#f8fafc',
+      '& .MuiOutlinedInput-root': { borderRadius: 3 } 
+    }} 
+    {...props}
+  >
+    {options.map((opt) => (
+      <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+    ))}
+  </TextField>
+);
 
 export default Admin;
